@@ -2,8 +2,6 @@
 
 This is a snap for Lidarr, a music collection manager for Usenet and BitTorrent users.
 
-w: <http://lidarr.audio/>
-
 ## Installation
 
 First build:
