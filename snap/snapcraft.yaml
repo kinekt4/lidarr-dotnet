@@ -1,0 +1,83 @@
+name: lidarr-dotnet # you probably want to 'snapcraft register <name>'
+summary: Lidarr is a movie collection manager for Usenet and BitTorrent users. # 79 char long summary
+description: |
+  Lidarr is a music collection manager for Usenet and BitTorrent users. 
+  It can monitor multiple RSS feeds for new tracks from your favorite artists 
+  and will grab, sort and rename them. 
+  It can also be configured to automatically upgrade the quality of files 
+  already downloaded when a better quality format becomes available.
+
+  The web interface is accessible by default at http://localhost:8686
+
+  See https://lidarr.audio for more details.
+
+confinement: strict # use 'strict' once you have the right plugs and slots
+license: GPL-3.0+
+icon: icon.svg
+base: core20
+grade: stable
+adopt-info: set-version
+
+package-repositories:
+  - type: apt
+    url: https://packages.microsoft.com/ubuntu/20.04/prod
+    components: [main]
+    suites: [focal]
+    key-id: BC528686B50D79E339D3721CEB3E94ADBE1229CF
+
+apps:
+  lidarr:
+    command: bin/run-lidarr
+    daemon: simple
+    plugs:
+      - home
+      - mount-observe
+      - network
+      - network-bind
+      - removable-media
+    stop-timeout: 30s
+
+parts:
+
+  local:
+    plugin: dump
+    source: snap/local
+
+  set-version:
+    plugin: nil
+    override-pull:
+      curl -sLG "https://lidarr.servarr.com/v1/update/master/changes?os=linux&runtime=netcore&arch=x64" --output changes.json
+    override-build: |
+      snapcraftctl set-version "$(jq -r .[0].version changes.json)"
+    build-packages:
+      - curl
+      - jq
+
+  lidarr:
+    plugin: nil
+    source: 'https://lidarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=x64'
+    source-type: tar
+    override-build: |
+      INST_DIR="$SNAPCRAFT_PART_INSTALL/lidarr-dotnet"
+      mkdir -p "$INST_DIR"
+      cp -a * "$INST_DIR"
+
+  deps:
+    plugin: dump
+    source: .
+    stage-packages:
+      - curl
+      - mediainfo
+      - sqlite3
+      - libchromaprint-tools
+      - apt-transport-https
+      - dotnet-sdk-6.0
+    filesets:
+      bins:
+        - usr/bin/sqlite*
+      libs:
+        - usr/lib
+    stage:
+      - $bins
+      - $libs
+
