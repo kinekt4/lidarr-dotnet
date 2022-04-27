@@ -1,0 +1,3 @@
+#!/bin/bash -xe
+
+"$SNAP/lidarr-dotnet/Lidarr" -nobrowser -data="$SNAP_COMMON"
