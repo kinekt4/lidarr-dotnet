@@ -18,7 +18,7 @@ Then install:
 
 ## Web GUI
 
-The web interface is available at <http:/localhost:9696> after installation.
+The web interface is available at <http:/localhost:8686> after installation.
 
 ## More
 
